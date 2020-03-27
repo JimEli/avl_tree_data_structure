@@ -38,15 +38,19 @@ public:
     // Min value from AVL is leftmost node, max is rightmost node in the tree.
     T min() {
         std::shared_ptr<avlNode<T>> node = rootNode;
+        
         while (node->left != emptyNode)
             node = node->left;
+        
         return node->data;
     }
 
     T max() {
         std::shared_ptr<avlNode<T>> node = rootNode;
+        
         while (node->right != emptyNode)
             node = node->right;
+        
         return node->data;
     }
 
@@ -65,6 +69,7 @@ private:
             node->left = node->right = emptyNode;
             node->height = 1;
             count++;
+        
             return node;
         }
         
@@ -80,8 +85,10 @@ private:
     {
         if (node == emptyNode)
             return false;
+        
         if (node->data == d)
             return true;
+        
         if (d < node->data)
             return search(node->left, d);
         else
@@ -104,6 +111,7 @@ private:
                     t = node->left;
                 node.reset();
                 count--;
+        
                 return t;
             }
             else 
@@ -114,10 +122,12 @@ private:
                 return balance(node);
             }
         }
+        
         if (d < node->data)
             node->left = remove(node->left, d);
         else
             node->right = remove(node->right, d);
+        
         return balance(node);
     }
 
