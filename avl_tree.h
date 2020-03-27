@@ -8,10 +8,12 @@
 #include <algorithm> // max
 
 template<typename T>
-class AVL {
+class AVL 
+{
 private:
     template<typename T>
-    class AVLNode {
+    class AVLNode 
+    {
         T data;                                  // Node data element.
         unsigned height = 0;                     // Depth of node.
         std::shared_ptr<AVLNode> left = nullptr; // Child nodes.
@@ -35,14 +37,16 @@ public:
     void remove(T data) { rootNode = remove(rootNode, data); }
 
     // Min value from AVL is leftmost node, max is rightmost node in the tree.
-    T min() {
+    T min() 
+    {
         std::shared_ptr<AVLNode<T>> node = rootNode;
         while (node->left != emptyNode)
             node = node->left;
         return node->data;
     }
 
-    T max() {
+    T max() 
+    {
         std::shared_ptr<AVLNode<T>> node = rootNode;
         while (node->right != emptyNode)
             node = node->right;
@@ -54,7 +58,8 @@ public:
     void postOrder(std::ostream& os) { postOrder(os, rootNode); }
 
 private:
-    bool search(std::shared_ptr<AVLNode<T>> node, T d) {
+    bool search(std::shared_ptr<AVLNode<T>> node, T d) 
+    {
         if (node == emptyNode)
             return false;
         if (node->data == d)
@@ -66,7 +71,8 @@ private:
     }
 
     // Balance tree.
-    std::shared_ptr<AVLNode<T>> insert(std::shared_ptr<AVLNode<T>> node, T d) {
+    std::shared_ptr<AVLNode<T>> insert(std::shared_ptr<AVLNode<T>> node, T d) 
+    {
         if (node == emptyNode) {
             node = std::make_shared<AVLNode<T>>();
             node->data = d;
@@ -81,7 +87,8 @@ private:
         return balance(node);
     }
 
-    std::shared_ptr<AVLNode<T>> remove(std::shared_ptr<AVLNode<T>> node, T d) {
+    std::shared_ptr<AVLNode<T>> remove(std::shared_ptr<AVLNode<T>> node, T d) 
+    {
         std::shared_ptr<AVLNode<T>> t;
 
         if (node == emptyNode)
@@ -110,11 +117,13 @@ private:
     }
 
     // Updates the depth of the node in the tree.
-    void setNodeHeight(std::shared_ptr<AVLNode<T>> node) {
+    void setNodeHeight(std::shared_ptr<AVLNode<T>> node) 
+    {
         node->height = 1 + std::max(node->left->height, node->right->height);
     }
 
-    std::shared_ptr<AVLNode<T>> rotateLeft(std::shared_ptr<AVLNode<T>> node) {
+    std::shared_ptr<AVLNode<T>> rotateLeft(std::shared_ptr<AVLNode<T>> node) 
+    {
         std::shared_ptr<AVLNode<T>> leftNode = node->left;
         node->left = leftNode->right;
         leftNode->right = node;
@@ -123,7 +132,8 @@ private:
         return leftNode;
     }
 
-    std::shared_ptr<AVLNode<T>> rotateRight(std::shared_ptr<AVLNode<T>> node) {
+    std::shared_ptr<AVLNode<T>> rotateRight(std::shared_ptr<AVLNode<T>> node) 
+    {
         std::shared_ptr<AVLNode<T>> rightNode = node->right;
         node->right = rightNode->left;
         rightNode->left = node;
@@ -133,7 +143,8 @@ private:
     }
 
     // Balance nodes so no 2 subtrees of a node have max depth with a difference greater than 1.
-    std::shared_ptr<AVLNode<T>> balance(std::shared_ptr<AVLNode<T>> node) {
+    std::shared_ptr<AVLNode<T>> balance(std::shared_ptr<AVLNode<T>> node) 
+    {
         setNodeHeight(node);
         if (node->left->height > node->right->height + 1) {
             if (node->left->right->height > node->left->left->height)
@@ -148,21 +159,24 @@ private:
         return node;
     }
 
-    void inOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) {
+    void inOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) 
+    {
         if (node == emptyNode)
             return;
         inOrder(os, node->left);
         os << node->data << " ";
         inOrder(os, node->right);
     }
-    void preOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) {
+    void preOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) 
+    {
         if (node == emptyNode)
             return;
         os << node->data << " ";
         preOrder(os, node->left);
         preOrder(os, node->right);
     }
-    void postOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) {
+    void postOrder(std::ostream& os, std::shared_ptr<AVLNode<T>> node) 
+    {
         if (node == emptyNode)
             return;
         postOrder(os, node->left);
