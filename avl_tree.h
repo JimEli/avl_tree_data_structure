@@ -1,5 +1,4 @@
-// AVL, balanced binary search tree.
-// uses smart pointers
+// AVL, balanced binary search tree, using smart pointers.
 #include <ostream>   // ostreams
 #include <algorithm> // max
 
