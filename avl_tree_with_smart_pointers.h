@@ -1,8 +1,8 @@
 // avl-tree
 #include <iostream>
 
-template <typename T, typename A = std::allocator<T> >
-class Tree
+template <typename T>
+class tree
 {
     struct node {
         T data;
@@ -23,7 +23,7 @@ class Tree
 
 public:
     class iterator {
-        friend class Tree;
+        friend class tree;
 
     public:
         iterator() { p = nullptr; }
@@ -187,39 +187,36 @@ public:
         node const* p;
     };
 
-    Tree() noexcept
+    tree() noexcept
     {
         root = std::make_shared<node>();
         root->n = 0;
     }
-    Tree(const Tree& t) noexcept { *this = t; }
-    Tree(Tree&& t) noexcept
+    tree(const tree& t) noexcept { *this = t; }
+    tree(tree&& t) noexcept
     {
         root = t.root;
-        t.root = alloc.allocate(1);
-        alloc.construct(t.root);
+        t.root = std::make_shared<node>(); //alloc.construct(t.root);
         t.root->n = 0;
     }
-    Tree& operator= (const Tree& t) noexcept
+    tree& operator= (const tree& t) noexcept
     {
-        root = deep_copy_node(t.root);
+        root = deepCopyNode(t.root);
         return *this;
     }
-    Tree& operator= (Tree&& t) noexcept
+    tree& operator= (tree&& t) noexcept
     {
         clear();
         std::swap(root, t.root);
     }
 
-    ~Tree() noexcept
+    ~tree() noexcept
     {
         clearNode(root);
-        //alloc.destroy(root);
-        //alloc.deallocate(root, 1);
         root.reset();
     }
 
-    bool operator== (const Tree& t) const
+    bool operator== (const tree& t) const
     {
         const_iterator it1, it2;
         for (it1 = cbegin(), it2 = t.cbegin(); it1 != cend() && it2 != t.cend(); ++it1, ++it2)
@@ -232,7 +229,7 @@ public:
         else
             return false;
     }
-    bool operator!= (const Tree& t) const { return !(*this == t); }
+    bool operator!= (const tree& t) const { return !(*this == t); }
 
     iterator begin()
     {
@@ -285,7 +282,7 @@ public:
     iterator insert(const T& t)
     {
         iterator res;
-        // descent the search Tree
+        // descent the search tree
         std::shared_ptr<node> parent = root;
         while (true)
         {
@@ -353,7 +350,7 @@ public:
     iterator insert(T&& t)
     {
         iterator res;
-        // descent the search Tree
+        // descent the search tree
         std::shared_ptr<node> parent = root;
         while (true)
         {
@@ -366,8 +363,7 @@ public:
                 }
                 else
                 {
-                    parent->left = alloc.allocate(1);
-                    alloc.construct(parent->left, std::move(t));
+                    parent->left = std::move(t);
                     parent->left->parent = parent;
                     res = iterator(parent->left);
                     break;
@@ -381,8 +377,7 @@ public:
                 }
                 else
                 {
-                    parent->right = alloc.allocate(1);
-                    alloc.construct(parent->right, std::move(t));
+                    parent->right = std::move(t);
                     parent->right->parent = parent;
                     res = iterator(parent->right);
                     break;
@@ -428,7 +423,7 @@ public:
     {
         // bounds checking
         if (i >= size())
-            throw std::out_of_range("Tree::at out-of-range");
+            throw std::out_of_range("tree::at out-of-range");
         size_t j = i;
         std::shared_ptr<node> p = root->left;
         while (true)
@@ -468,7 +463,7 @@ public:
     {
         // bounds checking
         if (i >= size())
-            throw std::out_of_range("Tree[] out-of-range");
+            throw std::out_of_range("tree[] out-of-range");
         size_t j = i;
         const std::shared_ptr<node> p = root->left;
         while (true)
@@ -586,8 +581,7 @@ public:
                 break;
             }
         }
-        alloc.destroy(p);
-        alloc.deallocate(p, 1);
+        p.reset();
         return itn;
     }
 
@@ -630,26 +624,19 @@ public:
         root->depth = 1;
     }
 
-    void swap(Tree& t) { std::swap(root, t.root); }
+    void swap(tree& t) { std::swap(root, t.root); }
 
     size_t size() const { return root->n; }
     bool empty() const { return root->left == nullptr; }
-
-    A getAllocator() { return alloc; }
 
 private:
     void rotateLeft(std::shared_ptr<node> n)
     {
         std::shared_ptr<node> tmp = n->right->left;
         if (n == n->parent->left)
-        {
             n->parent->left = n->right;
-        }
         else
-        {
             n->parent->right = n->right;
-        }
-
         n->right->parent = n->parent;
         n->right->left = n;
         n->parent = n->right;
@@ -670,13 +657,9 @@ private:
     {
         std::shared_ptr<node> tmp = n->left->right;
         if (n == n->parent->left)
-        {
             n->parent->left = n->left;
-        }
         else
-        {
             n->parent->right = n->left;
-        }
         n->left->parent = n->parent;
         n->left->right = n;
         n->parent = n->left;
@@ -695,8 +678,7 @@ private:
 
     std::shared_ptr<node> deepCopyNode(const std::shared_ptr<node> nd)
     {
-        std::shared_ptr<node> cp_nd = alloc.allocate(1);
-        alloc.construct(cp_nd, nd->data);
+        std::shared_ptr<node> cp_nd = std::make_shared<node>(nd->data);
         cp_nd->n = nd->n;
         cp_nd->depth = nd->depth;
         if (nd->left)
@@ -726,9 +708,8 @@ private:
         }
     }
 
-    typename std::allocator_traits<A>::template rebind_alloc<node> alloc;
     std::shared_ptr<node> root;
 };
 
-template <typename T, typename A = std::allocator<T> >
-void swap(Tree<T, A>& t1, Tree<T, A>& t2) { t1.swap(t2); }
+template <typename T>
+void swap(tree<T>& t1, tree<T>& t2) { t1.swap(t2); }
